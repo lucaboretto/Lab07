@@ -5,9 +5,11 @@
 package it.polito.tdp.poweroutages;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import it.polito.tdp.poweroutages.model.Model;
 import it.polito.tdp.poweroutages.model.Nerc;
+import it.polito.tdp.poweroutages.model.PowerOutage;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -39,8 +41,22 @@ public class FXMLController {
     @FXML
     void doRun(ActionEvent event) {
     	txtResult.clear();
+    	
+    	int maxHours = (Integer.parseInt(this.txtHours.getText()));
+    	int maxYears = (Integer.parseInt(this.txtYears.getText()));
+    	
+    	List<PowerOutage> res = this.model.getPowerOutagesMax(maxHours, maxYears, this.cmbNerc.getValue());
+    	
+    	this.txtResult.appendText("Totale clienti coinvolti: " + String.valueOf(model.calcolaAffetti(res)) +"\n");
+    	this.txtResult.appendText("Totale ore blackout: " + String.valueOf(model.calcolaOreTotali(res)/60) +"\n");
+    	for(PowerOutage po: res) {
+    		this.txtResult.appendText(po.toString()+"\n");
+    	}
+    	
     }
 
+
+    
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
         assert cmbNerc != null : "fx:id=\"cmbNerc\" was not injected: check your FXML file 'Scene.fxml'.";
@@ -54,5 +70,6 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	this.cmbNerc.getItems().addAll(this.model.getNercList());
     }
 }
